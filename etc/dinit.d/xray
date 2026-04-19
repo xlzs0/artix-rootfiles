@@ -1,0 +1,7 @@
+type          = process
+logfile       = /var/log/dinit/xray.log
+command       = /etc/xray/run
+restart       = true
+restart-delay = 1
+depends-on    = login.target
+after         = net-eth0

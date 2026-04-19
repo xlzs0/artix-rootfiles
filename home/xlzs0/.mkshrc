@@ -1,0 +1,19 @@
+HISTFILE=~/.mkhist
+HISTSIZE=1000
+SAVEHIST=1000
+
+if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
+    eval "$(keychain --eval --quiet ~/.ssh/id_ed25519 ~/.ssh/new_key)"
+    exec xinit /home/xlzs0/.xinitrc -- /etc/X11/xinit/xserverrc -seat seat0 vt1 -keeptty
+fi
+
+PS1=$'$([ $? -eq 0 ] && print -n "\e[38;5;71m" || print -n "\e[38;5;124m")${PWD/#$HOME/\~}❯\e[0m '
+
+source ~/.mkshrc_s
+
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+alias sysgit='doas git --git-dir=/root/artix-rootfiles --work-tree=/'
+
+bind '^H'=delete-word-backward
+bind '^[[M'=delete-word-forward

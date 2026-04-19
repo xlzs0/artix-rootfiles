@@ -1,0 +1,35 @@
+#!/usr/bin/env -S tcc -I/usr/X11R6/include -L/usr/X11R6/lib -lX11 -run
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <unistd.h>
+#include <X11/Xlib.h>
+
+int
+main(void)
+{
+	Display *dpy;
+	Window root;
+	char time_buf[64];
+	time_t rawtime;
+	struct tm *timeinfo;
+
+	if (!(dpy = XOpenDisplay(NULL))) {
+		fprintf(stderr, "can't open display\n");
+		exit(1);
+	}
+
+	root = DefaultRootWindow(dpy);
+
+	while (1) {
+		time(&rawtime);
+		timeinfo = localtime(&rawtime);
+		strftime(time_buf, sizeof(time_buf), "%Y-%m-%d %R:%S", timeinfo);
+		XStoreName(dpy, root, time_buf);
+		XFlush(dpy);
+		usleep(250000);
+	}
+	/* not reachable */
+	return 0;
+}

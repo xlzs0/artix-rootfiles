@@ -1,0 +1,27 @@
+#!/bin/sh
+
+cleanup() {
+	kill $xpid 2>/dev/null
+	wait $xpid 2>/dev/null
+
+	ip rule del priority 200 2>/dev/null || true
+	ip rule del priority 100 2>/dev/null || true
+	ip route del default dev xray0 table 200 2>/dev/null || true
+	ip link set dev xray0 down 2>/dev/null
+}
+
+trap cleanup EXIT INT TERM
+
+/usr/bin/xray run -config /etc/xray/config.json &
+xpid=$!
+
+while [ ! -e /sys/class/net/xray0 ]; do
+	sleep 0.01
+done
+
+ip link set dev xray0 up mtu 9000
+ip rule add fwmark 0xff lookup main priority 100
+ip route replace default dev xray0 table 200
+ip rule add lookup 200 priority 200
+
+wait $xpid

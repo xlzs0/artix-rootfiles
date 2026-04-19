@@ -1,0 +1,4 @@
+type    = scripted
+command = /bin/sh -c "ip link set eth0 up && ip addr add 192.168.1.64/24 dev eth0 && ip route add default via 192.168.1.254"
+restart = false
+after   = network.target
