@@ -1,0 +1,11 @@
+pkgname=noinitramfs
+pkgver=1
+pkgrel=1
+pkgdesc="dummy package"
+arch=('any')
+license=('0BSD')
+provides=('initramfs')
+
+package() {
+	:
+}

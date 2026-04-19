@@ -1,4 +1,4 @@
-#!/usr/bin/env -S tcc -I/usr/X11R6/include -L/usr/X11R6/lib -lX11 -run
+#!/usr/bin/env -S tcc -lX11 -run
 
 #include <stdio.h>
 #include <stdlib.h>

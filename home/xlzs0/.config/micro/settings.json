@@ -1,5 +1,5 @@
 {
-    "colorscheme": "darker-horizon-tc",
+	"colorscheme": "darker-horizon-tc",
 	"lsp.server": "c++=clangd,c=clangd",
 	"lsp.formatOnSave": true,
 	"lsp.tabcompletion": true

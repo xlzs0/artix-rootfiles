@@ -28,6 +28,9 @@
 !/home/xlzs0/.config/chromium/
 !/home/xlzs0/.config/chromium/Local\ State
 !/home/xlzs0/.config/micro/
+!/home/xlzs0/.config/micro/plug/
+!/home/xlzs0/.config/micro/plug/tcc/
+!/home/xlzs0/.config/micro/plug/tcc/tcc.lua
 !/home/xlzs0/.config/micro/colorschemes/
 !/home/xlzs0/.config/micro/colorschemes/**
 !/home/xlzs0/.config/micro/settings.json
@@ -47,4 +50,5 @@
 !/home/xlzs0/pkgs/st/**
 !/home/xlzs0/pkgs/slock/
 !/home/xlzs0/pkgs/slock/**
+!/home/xlzs0/pkgs/noinitramfs/
 !/home/xlzs0/pkgs/noinitramfs/PKGBUILD
