@@ -1,0 +1,40 @@
+post_install() {
+	[[ -x /usr/bin/mdevd && -x /usr/bin/dinit ]] || return 0
+
+	cat > /etc/dinit.d/udevd-early << 'EOF'
+type               = process
+command            = /usr/bin/mdevd -D 3 -O4
+ready-notification = pipefd:3
+restart            = true
+smooth-recovery    = true
+depends-on         = early-prepare.target
+depends-on         = kmod-static-nodes
+depends-on         = tmpfiles-dev
+EOF
+
+	cat > /etc/dinit.d/udev-trigger << 'EOF'
+type       = scripted
+command    = /usr/bin/mdevd-coldplug -O4
+restart    = false
+depends-on = udevd-early
+EOF
+
+	cat > /etc/dinit.d/udev-settle << 'EOF'
+type       = scripted
+command    = /usr/bin/true
+restart    = false
+depends-on = udevd-early
+depends-on = udev-trigger
+EOF
+
+	cat > /etc/dinit.d/udevd << 'EOF'
+type       = internal
+depends-on = early-devices.target
+depends-on = udevd-early
+before     = pre-local.target
+EOF
+}
+
+post_upgrade() {
+	post_install
+}

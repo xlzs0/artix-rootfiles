@@ -1,0 +1,47 @@
+pkgname=mdevd
+pkgver=0.1.8.2
+pkgrel=1
+pkgdesc='A Linux kernel event manager daemon (like udevd) that understands the mdev configuration file format and does not fork.'
+arch=('x86_64')
+url='https://skarnet.org/software/mdevd'
+license=('ISC')
+depends=()
+makedepends=('musl' 'clang')
+
+_skalibs_ver=2.15.0.0
+
+source=("https://skarnet.org/software/${pkgname}/${pkgname}-${pkgver}.tar.gz"
+		"https://skarnet.org/software/skalibs/skalibs-${_skalibs_ver}.tar.gz")
+sha256sums=('ce1ae0149b6a57a34f608218fd6181aa6aa68135cac2f4d931b5b417b072e244'
+			'7fde96e8afb4191593a15328883e9c7726c96891cf071222146821e8c87f8007')
+
+build() {
+	local _skalibs_dir="${srcdir}/skalibs-install"
+
+	cd skalibs-${_skalibs_ver}
+	CC=musl-clang ./configure --prefix=/usr \
+		--sysconfdir=/etc \
+		--enable-static \
+		--disable-shared
+	make CC=musl-clang
+	make DESTDIR="${_skalibs_dir}" install
+
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	CC=musl-clang ./configure --prefix=/usr \
+		--sysconfdir=/etc \
+		--libexecdir=/usr/lib \
+		--enable-static \
+		--enable-allstatic \
+		--enable-static-libc \
+		--disable-shared \
+		--with-include="${_skalibs_dir}/usr/include" \
+		--with-lib="${_skalibs_dir}/usr/lib" \
+		--with-sysdeps="${_skalibs_dir}/usr/lib/skalibs/sysdeps"
+	make CC=musl-clang
+}
+
+package() {
+	cd ${pkgname}-${pkgver}
+	make DESTDIR=${pkgdir} install
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

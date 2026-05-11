@@ -1,0 +1,11 @@
+pkgname=no-xlibre-libinput
+pkgver=1
+pkgrel=1
+pkgdesc="dummy package"
+arch=('any')
+license=('0BSD')
+provides=('xlibre-input-libinput')
+
+package() {
+	:
+}

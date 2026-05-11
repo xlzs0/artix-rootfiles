@@ -1,0 +1,76 @@
+pkgname=toybox
+pkgver=0.8.13
+pkgrel=1
+pkgdesc='All-in-one Linux command line'
+arch=('i686' 'x86_64' 'armv6h' 'armv7h')
+url='https://landley.net/toybox'
+license=('0BSD')
+depends=()
+makedepends=('musl' 'clang')
+source=("https://landley.net/${pkgname}/downloads/${pkgname}-${pkgver}.tar.gz")
+sha256sums=(9d4c124d7d731a2db399f6278baa2b42c2e3511f610c6ad30cc3f1a52581334b)
+provides=('coreutils' 'util-linux')
+conflicts=('coreutils' 'util-linux')
+replaces=('coreutils' 'util-linux')
+install=toybox.install
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	sed -i '/generated\/Config\.probed: generated\/Config\.in/a generated\/unstripped\/kconfig: generated\/Config.in' Makefile
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	CC=musl-clang make allnoconfig
+
+	local cmds=(
+  		# coreutils
+		base32 base64 basename cat chgrp chmod chown chroot cksum comm cp cut
+		date dd df dirname du echo env expand factor false fmt fold groups head
+		id install link ln logname ls md5sum mkdir mkfifo mknod mktemp mv nice
+		nl nohup nproc od paste printenv printf pwd readlink realpath rm rmdir
+		seq sha1sum sha224sum sha256sum sha384sum sha512sum shred shuf sleep
+		sort split stat sync tac tail tee test timeout touch true truncate
+		tsort tty uname uniq unlink wc who whoami yes tr expr
+
+		# util-linux
+		getty blkdiscard blkid blockdev cal chrt chsh dmesg eject fallocate
+		fdisk flock fsck fsfreeze getopt hexdump hwclock ionice ipcrm kill last
+		linux32 logger login losetup mcookie mkswap more mount mountpoint
+		nologin nsenter pivot_root renice rev rfkill rtcwake setsid su sulogin
+		swapoff swapon switch_root taskset uclampset umount unshare uuidgen
+	)
+
+	for cmd in "${cmds[@]}"; do
+		local sym="CONFIG_$(echo "$cmd" | tr 'a-z' 'A-Z')"
+		sed -i "s/# ${sym} is not set/${sym}=y/" .config
+	done
+
+	sed -i "s/# CONFIG_TOYBOX_SUID is not set/CONFIG_TOYBOX_SUID=y/" .config
+	sed -i "s/# CONFIG_TOYBOX_HELP is not set/CONFIG_TOYBOX_HELP=y/" .config
+	sed -i "s/# CONFIG_TOYBOX_HELP_DASHDASH is not set/CONFIG_TOYBOX_HELP_DASHDASH=y/" .config
+
+	CC=musl-clang LDFLAGS=-static NOSTRIP=1 make
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	PREFIX="${pkgdir}" make install
+
+	for dir in "${pkgdir}/bin" "${pkgdir}/sbin" "${pkgdir}/usr/sbin"; do
+		[[ -d "$dir" ]] && mv "$dir"/* "${pkgdir}/usr/bin/" && rmdir "$dir"
+	done
+
+
+	cat > "${pkgdir}/usr/bin/agetty" << 'EOF'
+#!/bin/sh
+exec getty "$@"
+EOF
+
+	chmod 755 "${pkgdir}/usr/bin/agetty"
+	chmod u+s "${pkgdir}/usr/bin/toybox"
+
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

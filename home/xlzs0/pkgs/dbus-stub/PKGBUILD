@@ -1,0 +1,25 @@
+pkgname=dbus-stub
+pkgver=1
+pkgrel=1
+pkgdesc="libdbus stub"
+arch=('x86_64')
+license=('0BSD')
+provides=('dbus' 'libdbus' 'libdbus-1.so=3-64')
+replaces=('dbus' 'libdbus')
+conflicts=('dbus' 'libdbus')
+source=('stub.c' 'dbus.ver')
+sha256sums=('SKIP' 'SKIP')
+
+build() {
+	cc -O2 -fPIC -shared \
+		-Wl,-soname,libdbus-1.so.3 \
+		-Wl,--version-script="${srcdir}/../dbus.ver" \
+		-o libdbus-1.so.3 \
+		"${srcdir}/../dbus.c"
+}
+
+package() {
+	install -Dm755 libdbus-1.so.3 "${pkgdir}/usr/lib/libdbus-1.so.3"
+	ln -s libdbus-1.so.3 "${pkgdir}/usr/lib/libdbus-1.so"
+	ln -s libdbus-1.so.3 "${pkgdir}/usr/lib/libdbus-1.so.3.0.0"
+}

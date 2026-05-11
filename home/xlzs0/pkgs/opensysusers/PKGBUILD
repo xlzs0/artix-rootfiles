@@ -1,0 +1,42 @@
+pkgname=opensysusers
+pkgver=0.7.4
+pkgrel=1
+pkgdesc='A replacement for sysusers.d without systemd'
+url='https://github.com/cromerc/opensysusers'
+license=('BSD-2-Clause')
+arch=('x86_64')
+depends=('sh')
+makedepends=('git' 'libxslt' 'docbook-xsl')
+source=("$pkgname::git+https://github.com/cromerc/opensysusers.git#tag=${pkgver}"
+        '20-opensysusers.hook'
+	'handle-locked-users.patch')
+sha256sums=('SKIP'
+            'be46b337c4f75d4e23c3e7630a6bc2275d899bd4db179ab1ce8a53ab28ca97df'
+	    'ecbb58e9f5addbebaee6676f1a14482dcf04d74389e7d781074a026963e2c9fb')
+provides=('esysusers')
+replaces=('esysusers')
+conflicts=('esysusers')
+
+prepare() {
+	cd "$pkgname"
+	patch -p1 < "$srcdir/handle-locked-users.patch"
+
+	sed -i 's/read -r conf; do/read -r file; do/' sysusers
+	sed -i 's/done < "${conf}"/done < "${file}"/' sysusers
+	sed -i 's/case "${uid}" in 65535|4294967295) warninvalid;/case "${uid}" in 65535|4294967295) warninvalid "reserved uid";/' sysusers
+	sed -i 's/case "${gid}" in 65535|4294967295) warninvalid;/case "${gid}" in 65535|4294967295) warninvalid "reserved gid";/' sysusers
+	sed -i 's/then warninvalid; return; fi/then warninvalid "uid set but gid is unspecified"; return; fi/' sysusers
+	sed -i "s/\*) warninvalid; return ;;/*) warninvalid \"unknown type '\${type}'\"; return ;;/" sysusers
+}
+
+build() {
+	cd "$pkgname"
+	make HAVESYSTEMD=no PREFIX=/usr
+}
+
+package() {
+	cd "$pkgname"
+	make HAVESYSTEMD=no PREFIX=/usr DESTDIR="$pkgdir" install
+	install -Dm644 "$srcdir/20-opensysusers.hook" \
+		"$pkgdir/usr/share/libalpm/hooks/20-opensysusers.hook"
+}

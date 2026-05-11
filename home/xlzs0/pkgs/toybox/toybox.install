@@ -1,0 +1,8 @@
+post_install() {
+	. /etc/os-release
+	printf '%s \\r (\\l)\n\n' "$PRETTY_NAME" > /etc/issue
+}
+
+post_upgrade() {
+	post_install
+}

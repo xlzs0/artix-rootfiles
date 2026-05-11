@@ -27,8 +27,8 @@ pcm.dsnooper {
             card 1
             subdevice 0
         }
-        period_size 32
-        buffer_size 512
+        period_size 256
+        buffer_size 1024
     }
     bindings {
         0 0

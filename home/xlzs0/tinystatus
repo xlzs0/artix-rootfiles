@@ -1,4 +1,7 @@
-#!/usr/bin/env -S tcc -lX11 -run
+#!/bin/sh
+#if 0
+exec tcc -lX11 -run "$0" "$@"
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>

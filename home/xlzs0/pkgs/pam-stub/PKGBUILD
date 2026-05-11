@@ -1,0 +1,22 @@
+pkgname=pam-stub
+pkgver=1
+pkgrel=1
+pkgdesc="Minimal working pam"
+arch=('x86_64')
+license=('0BSD')
+depends=('glibc' 'libxcrypt')
+provides=(
+	'libpam.so'
+	'libpamc.so'
+	'libpam_misc.so'
+	'pam'
+)
+conflicts=('pam')
+
+build() {
+	make -C "$startdir"
+}
+
+package() {
+	make -C "$startdir" DESTDIR="$pkgdir" PREFIX=/usr install
+}

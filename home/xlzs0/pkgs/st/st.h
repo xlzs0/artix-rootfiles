@@ -150,6 +150,7 @@ typedef struct {
 	int cw; /* char width  */
 	int mode; /* window state/mode flags */
 	int cursor; /* cursor style */
+	int hborderpx, vborderpx;
 } TermWindow;
 
 typedef struct {
