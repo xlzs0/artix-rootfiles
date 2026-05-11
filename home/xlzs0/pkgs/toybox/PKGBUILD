@@ -6,6 +6,7 @@ arch=('i686' 'x86_64' 'armv6h' 'armv7h')
 url='https://landley.net/toybox'
 license=('0BSD')
 depends=()
+optdepends=('dinit')
 makedepends=('musl' 'clang')
 source=("https://landley.net/${pkgname}/downloads/${pkgname}-${pkgver}.tar.gz")
 sha256sums=(9d4c124d7d731a2db399f6278baa2b42c2e3511f610c6ad30cc3f1a52581334b)

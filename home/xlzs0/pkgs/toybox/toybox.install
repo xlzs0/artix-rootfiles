@@ -1,6 +1,44 @@
 post_install() {
 	. /etc/os-release
 	printf '%s \\r (\\l)\n\n' "$PRETTY_NAME" > /etc/issue
+
+	if [ -x /usr/bin/dinit ]; then
+		mkdir -p /etc/dinit.d /usr/local/lib
+
+		sed 's|/sbin/swapon -a|/usr/local/lib/swap|' /usr/lib/dinit.d/swap > /etc/dinit.d/swap
+
+		cat > /usr/local/lib/swap << 'EOF'
+#!/bin/sh
+resolve_dev() {
+	case "$1" in
+		LABEL=*) blkid -L "${1#LABEL=}" ;;
+		UUID=*)  blkid -U "${1#UUID=}" ;;
+		PARTUUID=*)  echo "/dev/disk/by-partuuid/${1#PARTUUID=}" ;;
+		PARTLABEL=*) echo "/dev/disk/by-partlabel/${1#PARTLABEL=}" ;;
+		*) echo "$1" ;;
+	esac
+}
+
+while read -r dev mnt fstype rest; do
+	case "$dev" in
+		'#'*|'') continue ;;
+	esac
+	[ "$fstype" = "swap" ] && swapon "$(resolve_dev "$dev")"
+done < /etc/fstab
+EOF
+		chmod 755 /usr/local/lib/swap
+
+		sed 's/ --noadjfile//' /usr/lib/dinit/hwclock > /usr/local/lib/hwclock
+		chmod 755 /usr/local/lib/hwclock
+		sed 's|/usr/lib/dinit/hwclock|/usr/local/lib/hwclock|' /usr/lib/dinit.d/hwclock > /etc/dinit.d/hwclock
+
+		sed 's/fsck -C/fsck -C 0/g' /usr/lib/dinit/fsck > /usr/local/lib/fsck
+		chmod 755 /usr/local/lib/fsck
+
+		sed 's|/usr/lib/dinit/fsck|/usr/local/lib/fsck|' /usr/lib/dinit.d/fsck > /etc/dinit.d/fsck
+		sed 's|/usr/lib/dinit/fsck|/usr/local/lib/fsck|' /usr/lib/dinit.d/fsck-root > /etc/dinit.d/fsck-root
+
+	fi
 }
 
 post_upgrade() {
