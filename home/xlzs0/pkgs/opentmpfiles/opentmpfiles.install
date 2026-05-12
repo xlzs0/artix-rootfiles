@@ -1,0 +1,16 @@
+post_install() {
+	if [ -x /usr/bin/dinit ]; then
+		mkdir -p /etc/dinit.d
+		sed 's|/usr/lib/dinit/tmpfiles|/usr/local/lib/tmpfiles|' /usr/lib/dinit.d/tmpfiles-dev > /etc/dinit.d/tmpfiles-dev
+		sed 's|/usr/lib/dinit/tmpfiles|/usr/local/lib/tmpfiles|' /usr/lib/dinit.d/tmpfiles-setup > /etc/dinit.d/tmpfiles-setup
+		sed 's|etmpfiles|tmpfiles|' /usr/lib/dinit/tmpfiles > /usr/local/lib/tmpfiles
+	fi
+}
+
+post_upgrade() {
+	post_install
+}
+
+post_remove() {
+	rm -f /etc/dinit.d/tmpfiles-dev /etc/dinit.d/tmpfiles-setup /etc/dinit.d/tmpfiles
+}

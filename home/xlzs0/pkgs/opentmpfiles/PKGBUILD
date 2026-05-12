@@ -1,0 +1,29 @@
+pkgname=opentmpfiles
+pkgver=0.3.1
+pkgrel=1
+pkgdesc='A replacement for tmpfiles.d without systemd'
+url='https://github.com/OpenRC/opentmpfiles'
+license=('BSD-2-Clause')
+arch=('x86_64')
+depends=('sh')
+makedepends=('git')
+source=("$pkgname::git+https://github.com/OpenRC/opentmpfiles.git#commit=b18b99492d808f16b5058268c6f72a96d9f8fe46"
+        "21-tmpfiles.hook")
+sha256sums=('SKIP'
+            'c5085f21bdebf8e7ad6709d06a34c71ab749a387b600001227032cfd3e196d52')
+provides=('etmpfiles')
+replaces=('etmpfiles')
+conflicts=('etmpfiles')
+install=opentmpfiles.install
+
+build() {
+	cd "$pkgname"
+	make
+}
+
+package() {
+	cd "$pkgname"
+	make bindir=/usr/bin DESTDIR="$pkgdir" install
+	install -Dm644 "$srcdir/21-tmpfiles.hook" \
+		"$pkgdir/usr/share/libalpm/hooks/21-tmpfiles.hook"
+}

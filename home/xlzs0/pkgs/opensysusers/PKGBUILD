@@ -6,6 +6,7 @@ url='https://github.com/cromerc/opensysusers'
 license=('BSD-2-Clause')
 arch=('x86_64')
 depends=('sh')
+optdepends=('dinit')
 makedepends=('git' 'libxslt' 'docbook-xsl')
 source=("$pkgname::git+https://github.com/cromerc/opensysusers.git#tag=${pkgver}"
         '20-opensysusers.hook'
@@ -13,6 +14,7 @@ source=("$pkgname::git+https://github.com/cromerc/opensysusers.git#tag=${pkgver}
 sha256sums=('SKIP'
             'be46b337c4f75d4e23c3e7630a6bc2275d899bd4db179ab1ce8a53ab28ca97df'
 	    'ecbb58e9f5addbebaee6676f1a14482dcf04d74389e7d781074a026963e2c9fb')
+install=opensysusers.install
 provides=('esysusers')
 replaces=('esysusers')
 conflicts=('esysusers')

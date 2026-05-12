@@ -10,9 +10,46 @@ optdepends=('dinit')
 makedepends=('musl' 'clang')
 source=("https://landley.net/${pkgname}/downloads/${pkgname}-${pkgver}.tar.gz")
 sha256sums=(9d4c124d7d731a2db399f6278baa2b42c2e3511f610c6ad30cc3f1a52581334b)
-provides=('coreutils' 'util-linux')
-conflicts=('coreutils' 'util-linux')
-replaces=('coreutils' 'util-linux')
+provides=(
+	'coreutils'
+	'util-linux'
+	'procps-ng'
+	'tar'
+	'grep'
+	'gawk'
+	'awk'
+	'sed'
+	'findutils'
+	'patch'
+	'which'
+	'diffutils'
+)
+conflicts=(
+	'coreutils'
+	'util-linux'
+	'procps-ng'
+	'tar'
+	'grep'
+	'gawk'
+	'sed'
+	'findutils'
+	'patch'
+	'which'
+	'diffutils'
+)
+replaces=(
+	'coreutils'
+	'util-linux'
+	'procps-ng'
+	'tar'
+	'grep'
+	'gawk'
+	'sed'
+	'findutils'
+	'patch'
+	'which'
+	'diffutils'
+)
 install=toybox.install
 
 prepare() {
@@ -36,11 +73,43 @@ build() {
 		tsort tty uname uniq unlink wc who whoami yes tr expr
 
 		# util-linux
-		getty blkdiscard blkid blockdev cal chrt chsh dmesg eject fallocate
+		getty blkdiscard blkid blockdev cal chrt
+
+		# TODO: make patch to fix this shit nuking /etc/passwd
+		# chsh
+
+		dmesg eject fallocate
 		fdisk flock fsck fsfreeze getopt hexdump hwclock ionice ipcrm kill last
 		linux32 logger login losetup mcookie mkswap more mount mountpoint
 		nologin nsenter pivot_root renice rev rfkill rtcwake setsid su sulogin
 		swapoff swapon switch_root taskset uclampset umount unshare uuidgen
+
+		# procps-ng
+		free pgrep pidof pkill pmap ps pwdx sysctl top uptime vmstat w watch
+
+		# tar
+		tar
+
+		# grep
+		egrep fgrep grep
+
+		# gawk
+		awk
+
+		# sed
+		sed
+
+		# findutils
+		find xargs
+
+		# which
+		which
+
+		# patch
+		patch
+
+		# diffutils
+		cmp diff
 	)
 
 	for cmd in "${cmds[@]}"; do
@@ -52,7 +121,7 @@ build() {
 	sed -i "s/# CONFIG_TOYBOX_HELP is not set/CONFIG_TOYBOX_HELP=y/" .config
 	sed -i "s/# CONFIG_TOYBOX_HELP_DASHDASH is not set/CONFIG_TOYBOX_HELP_DASHDASH=y/" .config
 
-	CC=musl-clang LDFLAGS=-static NOSTRIP=1 make
+	CC=musl-clang LDFLAGS=-static make
 }
 
 package() {
@@ -72,6 +141,7 @@ EOF
 
 	chmod 755 "${pkgdir}/usr/bin/agetty"
 	chmod u+s "${pkgdir}/usr/bin/toybox"
+	ln -s awk "${pkgdir}/usr/bin/gawk"
 
 	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }

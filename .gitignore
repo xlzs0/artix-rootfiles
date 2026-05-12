@@ -17,6 +17,7 @@
 !/etc/doas.conf
 !/etc/resolv.conf
 !/etc/mdev.conf
+!/etc/sysctl.conf
 !/usr/
 !/usr/local/
 !/usr/local/lib/
@@ -88,3 +89,10 @@
 !/home/xlzs0/pkgs/opensysusers/PKGBUILD
 !/home/xlzs0/pkgs/opensysusers/20-opensysusers.hook
 !/home/xlzs0/pkgs/opensysusers/handle-locked-users.patch
+!/home/xlzs0/pkgs/opensysusers/opensysusers.install
+!/home/xlzs0/pkgs/opentmpfiles/
+!/home/xlzs0/pkgs/opentmpfiles/PKGBUILD
+!/home/xlzs0/pkgs/opentmpfiles/21-tmpfiles.hook
+!/home/xlzs0/pkgs/opentmpfiles/opentmpfiles.install
+!/home/xlzs0/pkgs/gettext-tiny/
+!/home/xlzs0/pkgs/gettext-tiny/PKGBUILD

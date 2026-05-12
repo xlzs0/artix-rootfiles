@@ -1,0 +1,28 @@
+pkgname=gettext-tiny
+pkgver=0.3.3
+pkgrel=1
+pkgdesc='stub and/or lightweight replacements of the gnu gettext suite; because the GNU one takes ages to compile'
+arch=('i686' 'x86_64' 'armv6h' 'armv7h')
+url='https://github.com/sabotage-linux/gettext-tiny'
+license=('MIT')
+depends=()
+optdepends=()
+makedepends=('musl' 'clang' 'lld')
+source=("git+${url}.git#tag=v${pkgver}")
+sha256sums=('SKIP')
+provides=('gettext')
+conflicts=('gettext')
+replaces=('gettext')
+
+build() {
+	cd "${srcdir}/${pkgname}"
+
+	CC=musl-clang make LIBINTL=NOOP LDFLAGS="-static -fuse-ld=lld"
+}
+
+package() {
+	cd "${srcdir}/${pkgname}"
+
+	CC=musl-clang make LIBINTL=NOOP DESTDIR="${pkgdir}" prefix=/usr install
+	rm -f "${pkgdir}/usr/include/libintl.h"
+}

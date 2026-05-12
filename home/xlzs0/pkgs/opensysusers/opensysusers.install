@@ -1,0 +1,16 @@
+post_install() {
+	if [ -x /usr/bin/dinit ]; then
+		mkdir -p /etc/dinit.d
+		sed 's|/usr/bin/esysusers|/usr/bin/opensysusers|' /usr/lib/dinit.d/sysusers > /etc/dinit.d/sysusers
+
+	fi
+}
+
+post_upgrade() {
+	post_install
+}
+
+
+post_remove() {
+	rm -f /etc/dinit.d/sysusers
+}

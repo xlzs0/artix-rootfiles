@@ -38,9 +38,14 @@ EOF
 		sed 's|/usr/lib/dinit/fsck|/usr/local/lib/fsck|' /usr/lib/dinit.d/fsck > /etc/dinit.d/fsck
 		sed 's|/usr/lib/dinit/fsck|/usr/local/lib/fsck|' /usr/lib/dinit.d/fsck-root > /etc/dinit.d/fsck-root
 
+		sed 's| --system| -p|' /usr/lib/dinit.d/sysctl > /etc/dinit.d/sysctl
 	fi
 }
 
 post_upgrade() {
 	post_install
+}
+
+post_remove() {
+	rm -f /etc/dinit.d/swap /etc/dinit.d/hwclock /etc/dinit.d/fsck /etc/dinit.d/fsck-root /etc/dinit.d/sysctl
 }

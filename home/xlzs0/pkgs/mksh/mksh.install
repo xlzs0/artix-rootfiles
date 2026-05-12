@@ -1,6 +1,7 @@
 post_install() {
   grep -qx /bin/mksh /etc/shells || echo /bin/mksh >>/etc/shells
   grep -qx /usr/bin/mksh /etc/shells || echo /usr/bin/mksh >>/etc/shells
+  ln -sf mksh /usr/bin/sh
 }
 
 post_upgrade() {
@@ -9,6 +10,14 @@ post_upgrade() {
 
 post_remove() {
   sed -i -r '/^(\/usr)?\/bin\/mksh$/d' etc/shells
+  if [ "$(readlink -f /usr/bin/sh)" = /usr/bin/mksh ]; then
+    for shell in bash dash zsh ksh fish; do
+      if [ -x "/usr/bin/$shell" ] && [ ! -L "/usr/bin/$shell" ]; then
+        ln -sf "$shell" /usr/bin/sh
+        return
+      fi
+    done
+  fi
 }
 
 # vim:set ts=2 sw=2 et:
