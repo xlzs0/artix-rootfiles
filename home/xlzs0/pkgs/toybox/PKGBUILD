@@ -55,6 +55,26 @@ install=toybox.install
 prepare() {
 	cd "${srcdir}/${pkgname}-${pkgver}"
 	sed -i '/generated\/Config\.probed: generated\/Config\.in/a generated\/unstripped\/kconfig: generated\/Config.in' Makefile
+
+	# TODO: sumbit to upstream as .patch?
+
+	# update_password truncating files on open
+	sed -i 's/fopen(filename, "w+")/fopen(filename, "r+")/' lib/password.c
+
+	# inverted match condition never matching users
+	sed -i "s/!(line\[len\] && line\[len\]!=':')/line[len] != ':'/" lib/password.c
+
+	# use after free when getline's out buffer==line
+	sed -i '/^\s*free(out);$/d' lib/password.c
+
+	# off by one in field replacement
+	sed -i 's/if (pos>=0) out = line;/if (pos>0) out = line;/' lib/password.c
+
+	# xmprintf padding instead of truncating
+	sed -i 's/xmprintf("%\*s%s%s\\n"/xmprintf("%.*s%s%s\\n"/' lib/password.c
+
+	# stdout not flushed before reading stdin
+	sed -i '/xprintf("Login shell for/a\    fflush(stdout);' toys/pending/chsh.c
 }
 
 build() {
@@ -73,12 +93,7 @@ build() {
 		tsort tty uname uniq unlink wc who whoami yes tr expr
 
 		# util-linux
-		getty blkdiscard blkid blockdev cal chrt
-
-		# TODO: make patch to fix this shit nuking /etc/passwd
-		# chsh
-
-		dmesg eject fallocate
+		getty blkdiscard blkid blockdev cal chrt chsh dmesg eject fallocate
 		fdisk flock fsck fsfreeze getopt hexdump hwclock ionice ipcrm kill last
 		linux32 logger login losetup mcookie mkswap more mount mountpoint
 		nologin nsenter pivot_root renice rev rfkill rtcwake setsid su sulogin
