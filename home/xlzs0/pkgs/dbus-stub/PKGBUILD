@@ -7,7 +7,7 @@ license=('0BSD')
 provides=('dbus' 'libdbus' 'libdbus-1.so=3-64')
 replaces=('dbus' 'libdbus')
 conflicts=('dbus' 'libdbus')
-source=('stub.c' 'dbus.ver')
+source=('dbus.c' 'dbus.ver')
 sha256sums=('SKIP' 'SKIP')
 
 build() {

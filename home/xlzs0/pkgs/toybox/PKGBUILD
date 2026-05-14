@@ -14,7 +14,7 @@ provides=(
 	'coreutils'
 	'util-linux'
 	'procps-ng'
-	'tar'
+#	'tar'
 	'grep'
 	'gawk'
 	'awk'
@@ -23,12 +23,17 @@ provides=(
 	'patch'
 	'which'
 	'diffutils'
+	'gzip'
+	'xxd'
+	'cpio'
+	'time'
+#	'wget'
 )
 conflicts=(
 	'coreutils'
 	'util-linux'
 	'procps-ng'
-	'tar'
+#	'tar'
 	'grep'
 	'gawk'
 	'sed'
@@ -36,12 +41,17 @@ conflicts=(
 	'patch'
 	'which'
 	'diffutils'
+	'gzip'
+	'xxd'
+	'cpio'
+	'time'
+#	'wget'
 )
 replaces=(
 	'coreutils'
 	'util-linux'
 	'procps-ng'
-	'tar'
+#	'tar'
 	'grep'
 	'gawk'
 	'sed'
@@ -49,6 +59,11 @@ replaces=(
 	'patch'
 	'which'
 	'diffutils'
+	'gzip'
+	'xxd'
+	'cpio'
+	'time'
+#	'wget'
 )
 install=toybox.install
 
@@ -103,7 +118,7 @@ build() {
 		free pgrep pidof pkill pmap ps pwdx sysctl top uptime vmstat w watch
 
 		# tar
-		tar
+#		tar
 
 		# grep
 		egrep fgrep grep
@@ -125,6 +140,21 @@ build() {
 
 		# diffutils
 		cmp diff
+
+		# gzip
+		gzip gunzip
+
+		# xxd
+		xxd
+
+		# cpio
+		cpio
+
+		# time
+		time
+
+		# wget
+#		wget
 	)
 
 	for cmd in "${cmds[@]}"; do

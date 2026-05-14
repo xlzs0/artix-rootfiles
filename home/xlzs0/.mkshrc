@@ -3,8 +3,15 @@ HISTSIZE=1000
 SAVEHIST=1000
 
 if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
-    eval "$(keychain --eval --quiet ~/.ssh/id_ed25519 ~/.ssh/new_key)"
-    exec xinit /home/xlzs0/.xinitrc -- /etc/X11/xinit/xserverrc vt1 -keeptty
+	if [ -z "$XDG_RUNTIME_DIR" ]; then
+		XDG_RUNTIME_DIR="/tmp/$(id -u)-runtime"
+		mkdir -p "$XDG_RUNTIME_DIR"
+		chmod 0700 "$XDG_RUNTIME_DIR"
+		export XDG_RUNTIME_DIR
+	fi
+
+	eval "$(keychain --eval --quiet ~/.ssh/id_ed25519 ~/.ssh/new_key)"
+	exec xinit /home/xlzs0/.xinitrc -- /etc/X11/xinit/xserverrc vt1 -keeptty
 fi
 
 PS1=$'$([ $? -eq 0 ] && print -n "\e[38;5;71m" || print -n "\e[38;5;124m")${PWD/#$HOME/\~}❯\e[0m '
