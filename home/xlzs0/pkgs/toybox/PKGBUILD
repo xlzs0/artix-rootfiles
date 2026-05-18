@@ -11,11 +11,14 @@ makedepends=('musl' 'clang')
 source=("https://landley.net/${pkgname}/downloads/${pkgname}-${pkgver}.tar.gz"
         "usermod.c"
         "groupmod.c"
-        "passwd.patch")
+        "passwd.patch"
+        "mount-scanall.patch")
 sha256sums=('9d4c124d7d731a2db399f6278baa2b42c2e3511f610c6ad30cc3f1a52581334b'
             'c41a01dbdf36ac8c6ae6c97f2d20ab811fe851df065426ea77eac3e76f99f8fd'
-            'be2afb231e0ff5f64bc5f7f21d866d0bd29fec5f8ea0196f03b066dc8732cd10'
-            'f0ec9bb9acb2427f19b1e65e5fa3deef92011b6b36b756c8a796e1bbf0f39e85')
+            '0f2a16f76669b6f33a758d01d44b7312f5796a92c7b053dd84b69a8e8b7bdb18'
+            'f0ec9bb9acb2427f19b1e65e5fa3deef92011b6b36b756c8a796e1bbf0f39e85'
+            '125eea1939102e88ef1548f71621a599c69640cd999b5c78e7ebd69674999e6d')
+
 provides=(
 	'coreutils'
 	'util-linux'
@@ -86,6 +89,7 @@ prepare() {
 	cp $srcdir/groupmod.c $srcdir/toybox-$pkgver/toys/pending/groupmod.c
 
 	patch -p1 < $srcdir/passwd.patch
+	patch -p1 < $srcdir/mount-scanall.patch
 	sed -i '/generated\/Config\.probed: generated\/Config\.in/a generated\/unstripped\/kconfig: generated\/Config.in' Makefile
 
 	# TODO: submit to upstream as proper patches?
