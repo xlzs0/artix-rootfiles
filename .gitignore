@@ -8,7 +8,6 @@
 !/etc/dinit.d/
 !/etc/dinit.d/config/
 !/etc/dinit.d/config/**
-!/etc/dinit.d/alsa-restore
 !/etc/dinit.d/xray
 !/etc/dinit.d/root-ro
 !/etc/dinit.d/net-eth0
@@ -18,10 +17,6 @@
 !/etc/resolv.conf
 !/etc/mdev.conf
 !/etc/sysctl.conf
-!/usr/
-!/usr/local/
-!/usr/local/lib/
-!/usr/local/lib/mdev-input-alias
 !/home/
 !/home/xlzs0/
 !/home/xlzs0/.config/
@@ -80,6 +75,9 @@
 !/home/xlzs0/pkgs/toybox/
 !/home/xlzs0/pkgs/toybox/PKGBUILD
 !/home/xlzs0/pkgs/toybox/toybox.install
+!/home/xlzs0/pkgs/toybox/groupmod.c
+!/home/xlzs0/pkgs/toybox/passwd.patch
+!/home/xlzs0/pkgs/toybox/usermod.c
 !/home/xlzs0/pkgs/mksh/
 !/home/xlzs0/pkgs/mksh/PKGBUILD
 !/home/xlzs0/pkgs/mksh/mksh.install

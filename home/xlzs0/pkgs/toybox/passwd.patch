@@ -1,0 +1,47 @@
+--- a/toys/lsb/passwd.c
++++ b/toys/lsb/passwd.c
+@@ -58,7 +58,7 @@
+   uid_t myuid = getuid();
+   struct passwd *pw = 0;
+   struct spwd *sp;
+-  char *pass, *name, *encrypted = 0, salt[32];
++  char *pass, *shadow_pass, *name, *encrypted = 0, salt[32];
+ 
+   // If we're root or not -lud, load specified user. Exit if not allowed.
+   if (!myuid || !(toys.optflags&(FLAG_l|FLAG_u|FLAG_d))) {
+@@ -71,6 +71,7 @@
+   // TODO: why still support non-shadow passwords...?
+   name = pw->pw_name;
+   if (*(pass = pw->pw_passwd)=='x' && (sp = getspnam(name))) pass = sp->sp_pwdp;
++  shadow_pass = pass;
+ 
+   if (FLAG(l)) {
+     if (*pass=='!') error_exit("already locked");
+@@ -92,8 +93,8 @@
+       if (*pass=='!') error_exit("'%s' locked", name);
+ 
+       if (read_password(toybuf+2048, 2048, "Old password:")) return;
+-      pass = crypt(toybuf+2048, pw->pw_passwd);
+-      if (!pass || strcmp(pass, pw->pw_passwd)) error_exit("No");
++      pass = crypt(toybuf+2048, shadow_pass);
++      if (!pass || strcmp(pass, shadow_pass)) error_exit("No");
+     }
+ 
+     if (read_password(toybuf, 2048, "New password:")) return;
+@@ -102,7 +103,7 @@
+     if (read_password(toybuf+2048, 2048, "Retype password:")) return;
+     if (strcmp(toybuf, toybuf+2048)) error_exit("Passwords do not match.");
+ 
+-    encrypted = crypt(toybuf, salt);
++    encrypted = xstrdup(crypt(toybuf, salt));
+   }
+ 
+   // Update the passwd
+@@ -109,4 +110,4 @@
+-  if (update_password(*pw->pw_passwd=='x' ? "/etc/shadow" : "/etc/passwd",
+-    name, encrypted, 1)) error_msg("Failure");
++  if (!update_password(*pw->pw_passwd=='x' ? "/etc/shadow" : "/etc/passwd",
++    name, encrypted, 1)) error_msg("Failure");
+   else fprintf(stderr, "Success\n");
+
+   memset(toybuf, 0, sizeof(toybuf));

@@ -8,13 +8,19 @@ license=('0BSD')
 depends=()
 optdepends=('dinit')
 makedepends=('musl' 'clang')
-source=("https://landley.net/${pkgname}/downloads/${pkgname}-${pkgver}.tar.gz")
-sha256sums=(9d4c124d7d731a2db399f6278baa2b42c2e3511f610c6ad30cc3f1a52581334b)
+source=("https://landley.net/${pkgname}/downloads/${pkgname}-${pkgver}.tar.gz"
+        "usermod.c"
+        "groupmod.c"
+        "passwd.patch")
+sha256sums=('9d4c124d7d731a2db399f6278baa2b42c2e3511f610c6ad30cc3f1a52581334b'
+            'c41a01dbdf36ac8c6ae6c97f2d20ab811fe851df065426ea77eac3e76f99f8fd'
+            'be2afb231e0ff5f64bc5f7f21d866d0bd29fec5f8ea0196f03b066dc8732cd10'
+            'f0ec9bb9acb2427f19b1e65e5fa3deef92011b6b36b756c8a796e1bbf0f39e85')
 provides=(
 	'coreutils'
 	'util-linux'
 	'procps-ng'
-#	'tar'
+	'tar'
 	'grep'
 	'gawk'
 	'awk'
@@ -27,13 +33,15 @@ provides=(
 	'xxd'
 	'cpio'
 	'time'
-#	'wget'
+	'wget'
+	'vi'
+	'shadow'
 )
 conflicts=(
 	'coreutils'
 	'util-linux'
 	'procps-ng'
-#	'tar'
+	'tar'
 	'grep'
 	'gawk'
 	'sed'
@@ -45,13 +53,15 @@ conflicts=(
 	'xxd'
 	'cpio'
 	'time'
-#	'wget'
+	'wget'
+	'vi'
+	'shadow'
 )
 replaces=(
 	'coreutils'
 	'util-linux'
 	'procps-ng'
-#	'tar'
+	'tar'
 	'grep'
 	'gawk'
 	'sed'
@@ -63,15 +73,22 @@ replaces=(
 	'xxd'
 	'cpio'
 	'time'
-#	'wget'
+	'wget'
+	'vi'
+	'shadow'
 )
 install=toybox.install
 
 prepare() {
 	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	cp $srcdir/usermod.c $srcdir/toybox-$pkgver/toys/other/usermod.c
+	cp $srcdir/groupmod.c $srcdir/toybox-$pkgver/toys/pending/groupmod.c
+
+	patch -p1 < $srcdir/passwd.patch
 	sed -i '/generated\/Config\.probed: generated\/Config\.in/a generated\/unstripped\/kconfig: generated\/Config.in' Makefile
 
-	# TODO: sumbit to upstream as .patch?
+	# TODO: submit to upstream as proper patches?
 
 	# update_password truncating files on open
 	sed -i 's/fopen(filename, "w+")/fopen(filename, "r+")/' lib/password.c
@@ -90,6 +107,9 @@ prepare() {
 
 	# stdout not flushed before reading stdin
 	sed -i '/xprintf("Login shell for/a\    fflush(stdout);' toys/pending/chsh.c
+
+	# sucky: use blkid to detect fs type before falling back to /proc/filesystems
+	sed -i 's/} else fp = xfopen("\/proc\/filesystems", "r");/} else {\n      char *blktype = chomp(xrunread((char *[]){"blkid", "-o", "value", "-s", "TYPE", dev, 0}, 0));\n      if (blktype) type = blktype;\n      else fp = xfopen("\/proc\/filesystems", "r");\n    }/' toys/lsb/mount.c
 }
 
 build() {
@@ -97,15 +117,15 @@ build() {
 
 	CC=musl-clang make allnoconfig
 
-	local cmds=(
+	local opts=(
   		# coreutils
-		base32 base64 basename cat chgrp chmod chown chroot cksum comm cp cut
-		date dd df dirname du echo env expand factor false fmt fold groups head
-		id install link ln logname ls md5sum mkdir mkfifo mknod mktemp mv nice
+		base32 base64 basename cat chgrp chmod chown chroot cksum comm cp crc32 cut
+		date dd df dirname du echo env expand expr factor false fmt fold groups
+		head id install link ln logname ls md5sum mkdir mkfifo mknod mktemp mv nice
 		nl nohup nproc od paste printenv printf pwd readlink realpath rm rmdir
-		seq sha1sum sha224sum sha256sum sha384sum sha512sum shred shuf sleep
-		sort split stat sync tac tail tee test timeout touch true truncate
-		tsort tty uname uniq unlink wc who whoami yes tr expr
+		seq sha1sum sha224sum sha256sum sha384sum sha3sum sha512sum shred shuf
+		sleep sort split stat sync tac tail tee test timeout touch true truncate
+		tr tsort tty uname uniq unlink wc who whoami yes
 
 		# util-linux
 		getty blkdiscard blkid blockdev cal chrt chsh dmesg eject fallocate
@@ -118,7 +138,7 @@ build() {
 		free pgrep pidof pkill pmap ps pwdx sysctl top uptime vmstat w watch
 
 		# tar
-#		tar
+		tar
 
 		# grep
 		egrep fgrep grep
@@ -142,7 +162,7 @@ build() {
 		cmp diff
 
 		# gzip
-		gzip gunzip
+		gzip gunzip zcat
 
 		# xxd
 		xxd
@@ -154,20 +174,33 @@ build() {
 		time
 
 		# wget
-#		wget
+		wget
+
+		# vi
+		vi
+
+		# shadow
+		groupadd groupdel groupmod passwd useradd userdel usermod
+
+		# cfg
+		TOYBOX_SUID
+		TOYBOX_HELP
+		TOYBOX_HELP_DASHDASH
+		TOYBOX_FLOAT
 	)
 
-	for cmd in "${cmds[@]}"; do
-		local sym="CONFIG_$(echo "$cmd" | tr 'a-z' 'A-Z')"
+	for opt in "${opts[@]}"; do
+		local sym="CONFIG_$(echo "$opt" | tr 'a-z' 'A-Z')"
 		sed -i "s/# ${sym} is not set/${sym}=y/" .config
 	done
 
-	sed -i "s/# CONFIG_TOYBOX_SUID is not set/CONFIG_TOYBOX_SUID=y/" .config
-	sed -i "s/# CONFIG_TOYBOX_HELP is not set/CONFIG_TOYBOX_HELP=y/" .config
-	sed -i "s/# CONFIG_TOYBOX_HELP_DASHDASH is not set/CONFIG_TOYBOX_HELP_DASHDASH=y/" .config
-
-	CC=musl-clang LDFLAGS=-static make
+	CC=musl-clang \
+	CFLAGS='-Wno-unused-command-line-argument' \
+	LDFLAGS="-static -lm" \
+	make
 }
+
+mkwrap() { printf '#!/bin/sh\nexec %s "$@"\n' "$2" > "$1" && chmod 755 "$1"; }
 
 package() {
 	cd "${srcdir}/${pkgname}-${pkgver}"
@@ -179,14 +212,11 @@ package() {
 	done
 
 
-	cat > "${pkgdir}/usr/bin/agetty" << 'EOF'
-#!/bin/sh
-exec getty "$@"
-EOF
 
-	chmod 755 "${pkgdir}/usr/bin/agetty"
+	mkwrap "${pkgdir}/usr/bin/agetty" getty
+	mkwrap "${pkgdir}/usr/bin/gawk" awk
+
 	chmod u+s "${pkgdir}/usr/bin/toybox"
-	ln -s awk "${pkgdir}/usr/bin/gawk"
 
 	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }
