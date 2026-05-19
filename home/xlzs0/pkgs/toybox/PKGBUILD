@@ -16,7 +16,8 @@ source=("https://landley.net/${pkgname}/downloads/${pkgname}-${pkgver}.tar.gz"
 	"mount-scanall.patch"
 	"mount.patch"
 	"chsh.patch"
-	"makefile.patch")
+	"makefile.patch"
+	"fsck.patch")
 sha256sums=('9d4c124d7d731a2db399f6278baa2b42c2e3511f610c6ad30cc3f1a52581334b'
             'c41a01dbdf36ac8c6ae6c97f2d20ab811fe851df065426ea77eac3e76f99f8fd'
             '0f2a16f76669b6f33a758d01d44b7312f5796a92c7b053dd84b69a8e8b7bdb18'
@@ -25,7 +26,8 @@ sha256sums=('9d4c124d7d731a2db399f6278baa2b42c2e3511f610c6ad30cc3f1a52581334b'
             '125eea1939102e88ef1548f71621a599c69640cd999b5c78e7ebd69674999e6d'
             '23066fd10a771b109b30fe49132efe30c82d659725e8184a2b72069e34b1b72a'
             '101e6d59792f19c22aca99688b2675c26bd9c48f70f13540012854c73a6c6f84'
-            'd08d7e3ee2f5526620eb7721c3e1073059eca6f5ca498413524ae769b98fd64a')
+            'd08d7e3ee2f5526620eb7721c3e1073059eca6f5ca498413524ae769b98fd64a'
+            '17b7a2e94677e1c9247d9d78737641968c6531f9f9da2ac490dc71f269dc77c3')
 
 provides=(
 	'coreutils'
@@ -109,6 +111,7 @@ prepare() {
 	patch -p1 < $srcdir/mount-scanall.patch
 	patch -p1 < $srcdir/mount.patch
 	patch -p1 < $srcdir/chsh.patch
+	patch -p1 < $srcdir/fsck.patch
 	patch -p1 < $srcdir/makefile.patch
 }
 

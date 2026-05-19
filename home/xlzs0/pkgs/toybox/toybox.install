@@ -32,7 +32,9 @@ EOF
 		chmod 755 /usr/local/lib/hwclock
 		sed 's|/usr/lib/dinit/hwclock|/usr/local/lib/hwclock|' /usr/lib/dinit.d/hwclock > /etc/dinit.d/hwclock
 
-		sed 's/fsck -C/fsck -C 0/g' /usr/lib/dinit/fsck > /usr/local/lib/fsck
+		sed	-e 's/ -t noopts=_netdev//g' \
+			-e 's/-C \$FORCEARG \$FIXARG//g' \
+			/usr/lib/dinit/fsck > /usr/local/lib/fsck
 		chmod 755 /usr/local/lib/fsck
 
 		sed 's|/usr/lib/dinit/fsck|/usr/local/lib/fsck|' /usr/lib/dinit.d/fsck > /etc/dinit.d/fsck

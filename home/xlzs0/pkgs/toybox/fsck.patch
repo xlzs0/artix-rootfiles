@@ -1,0 +1,43 @@
+--- a/toys/pending/fsck.c
++++ b/toys/pending/fsck.c
+@@ -184,6 +184,21 @@
+   return ((TT.negate) ? !ret : ret);
+ }
+ 
++static char *resolve_device(char *dev)
++{
++  char *s, *flag = 0;
++  if (strstart(&dev, "UUID=")) flag = "-U";
++  else if (strstart(&dev, "LABEL=")) flag = "-L";
++  if (!flag) return 0;
++  fflush(0);
++  s = chomp(xrunread((char *[]){"blkid", flag, dev, 0}, 0));
++  if (!s || strlen(s) >= sizeof(toybuf)) {
++    error_msg("No %s %s", flag+1, dev);
++    return 0;
++  }
++  return s;
++}
++
+ // find type and execute corresponding fsck.type prog.
+ static void do_fsck(struct f_sys_info *finfo)
+ {
+@@ -207,7 +222,8 @@
+     if(*toys.optargs[j]) args[i++] = xstrdup(toys.optargs[j]);
+     j++;
+   }
+-  args[i] = finfo->device;
++  args[i] = resolve_device(finfo->device);
++  if (!args[i]) args[i] = xstrdup(finfo->device);
+ 
+   TT.nr_run++;
+   if ((toys.optflags & FLAG_V) || (toys.optflags & FLAG_N)) {
+@@ -394,6 +410,8 @@
+   dev = TT.devices;
+   dev->prev->next = NULL; //break double list to traverse.
+   for (; dev; dev = dev->next) {
++    char *resolved = resolve_device(dev->data);
++    if (resolved) dev->data = resolved;
+     for (finfo = filesys_info; finfo; finfo = finfo->next)
+       if (!strcmp(finfo->device, dev->data)
+           || !strcmp(finfo->mountpt, dev->data)) break;
