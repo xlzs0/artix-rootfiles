@@ -1,5 +1,14 @@
 --- a/toys/lsb/passwd.c
 +++ b/toys/lsb/passwd.c
+@@ -15,7 +15,7 @@
+ 
+     Update user's login password. Defaults to current user.
+ 
+-    -a ALGO	Encryption method (des, md5, sha256, sha512) default: md5
++    -a ALGO	Encryption method (des, md5, sha256, sha512, bcrypt) default: md5
+     -d		Set password to ''
+     -l		Lock (disable) account
+     -u		Unlock (enable) account
 @@ -58,7 +58,7 @@
    uid_t myuid = getuid();
    struct passwd *pw = 0;
@@ -39,9 +48,7 @@
    // Update the passwd
 @@ -109,4 +110,4 @@
 -  if (update_password(*pw->pw_passwd=='x' ? "/etc/shadow" : "/etc/passwd",
--    name, encrypted, 1)) error_msg("Failure");
 +  if (!update_password(*pw->pw_passwd=='x' ? "/etc/shadow" : "/etc/passwd",
-+    name, encrypted, 1)) error_msg("Failure");
+     name, encrypted, 1)) error_msg("Failure");
    else fprintf(stderr, "Success\n");
-
-   memset(toybuf, 0, sizeof(toybuf));
+ 
