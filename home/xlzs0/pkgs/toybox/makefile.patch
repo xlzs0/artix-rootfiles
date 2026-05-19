@@ -1,0 +1,10 @@
+--- a/Makefile
++++ b/Makefile
+@@ -32,6 +32,7 @@
+ 
+ $(KCONFIG_TOP): generated/Config.in generated/Config.probed generated/unstripped/kconfig
+ generated/Config.probed: generated/Config.in
++generated/unstripped/kconfig: generated/Config.in
+ generated/Config.in: toys/*/*.c scripts/genconfig.sh scripts/kconfig.c
+ 	scripts/genconfig.sh
+ 

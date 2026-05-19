@@ -1,0 +1,41 @@
+--- a/toys/lsb/mount.c
++++ b/toys/lsb/mount.c
+@@ -195,10 +195,28 @@
+     {
+       flags ^= MS_REC;
+       flags |= MS_BIND;
+-    } else fp = xfopen("/proc/filesystems", "r");
++    } else {
++      char *blktype = chomp(xrunread((char *[]){"blkid", "-o", "value", "-s", "TYPE", dev, 0}, 0));
++      if (blktype) type = blktype;
++      else fp = xfopen("/proc/filesystems", "r");
++    }
+   } else if (!strcmp(type, "ignore")) return;
+-  else if (!strcmp(type, "swap"))
++ else if (!strcmp(type, "swap")) {
++    if (FLAG(a)) {
++      char *swaps = readfile("/proc/swaps", 0, 0), *line, *nl;
++      size_t dlen = strlen(dev);
++      int found = 0;
++      if (swaps) {
++        for (line = swaps; (nl = strchr(line, '\n')); line = nl+1)
++          if ((size_t)(nl-line) > dlen && !strncmp(line, dev, dlen)
++              && isspace((unsigned char)line[dlen])) { found = 1; break; }
++        free(swaps);
++      }
++      if (found) return;
++    }
+     toys.exitval |= xrun((char *[]){"swapon", "--", dev, 0});
++    return;
++  }
+ 
+   for (;;) {
+     int fd = -1, ro = 0;
+@@ -269,6 +287,7 @@
+     buf = 0;
+     if (!rc) break;
+     if (fp && (errno == EINVAL || errno == EBUSY)) continue;
++    if (FLAG(a) && errno == EBUSY) break;
+ 
+     perror_msg("'%s'->'%s'", dev, dir);
+ 

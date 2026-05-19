@@ -81,9 +81,8 @@
 !/home/xlzs0/pkgs/toybox/PKGBUILD
 !/home/xlzs0/pkgs/toybox/toybox.install
 !/home/xlzs0/pkgs/toybox/groupmod.c
-!/home/xlzs0/pkgs/toybox/mount-scanall.patch
-!/home/xlzs0/pkgs/toybox/passwd.patch
 !/home/xlzs0/pkgs/toybox/usermod.c
+!/home/xlzs0/pkgs/toybox/*.patch
 !/home/xlzs0/pkgs/mksh/
 !/home/xlzs0/pkgs/mksh/PKGBUILD
 !/home/xlzs0/pkgs/mksh/mksh.install

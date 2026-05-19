@@ -9,15 +9,23 @@ depends=()
 optdepends=('dinit')
 makedepends=('musl' 'clang')
 source=("https://landley.net/${pkgname}/downloads/${pkgname}-${pkgver}.tar.gz"
-        "usermod.c"
-        "groupmod.c"
-        "passwd.patch"
-        "mount-scanall.patch")
+	"usermod.c"
+	"groupmod.c"
+	"passwd.patch"
+	"password.patch"
+	"mount-scanall.patch"
+	"mount.patch"
+	"chsh.patch"
+	"makefile.patch")
 sha256sums=('9d4c124d7d731a2db399f6278baa2b42c2e3511f610c6ad30cc3f1a52581334b'
             'c41a01dbdf36ac8c6ae6c97f2d20ab811fe851df065426ea77eac3e76f99f8fd'
             '0f2a16f76669b6f33a758d01d44b7312f5796a92c7b053dd84b69a8e8b7bdb18'
             'f0ec9bb9acb2427f19b1e65e5fa3deef92011b6b36b756c8a796e1bbf0f39e85'
-            '125eea1939102e88ef1548f71621a599c69640cd999b5c78e7ebd69674999e6d')
+            '021dc1f20fa89c7154097a14ab883c9b63341e306c4ded62cfb0063692a756d5'
+            '125eea1939102e88ef1548f71621a599c69640cd999b5c78e7ebd69674999e6d'
+            '23066fd10a771b109b30fe49132efe30c82d659725e8184a2b72069e34b1b72a'
+            '101e6d59792f19c22aca99688b2675c26bd9c48f70f13540012854c73a6c6f84'
+            'd08d7e3ee2f5526620eb7721c3e1073059eca6f5ca498413524ae769b98fd64a')
 
 provides=(
 	'coreutils'
@@ -39,6 +47,8 @@ provides=(
 	'wget'
 	'vi'
 	'shadow'
+	'iputils'
+	'netcat'
 )
 conflicts=(
 	'coreutils'
@@ -59,6 +69,8 @@ conflicts=(
 	'wget'
 	'vi'
 	'shadow'
+	'iputils'
+	'gnu-netcat'
 )
 replaces=(
 	'coreutils'
@@ -79,41 +91,25 @@ replaces=(
 	'wget'
 	'vi'
 	'shadow'
+	'iputils'
+	'gnu-netcat'
 )
 install=toybox.install
 
 prepare() {
 	cd "${srcdir}/${pkgname}-${pkgver}"
 
-	cp $srcdir/usermod.c $srcdir/toybox-$pkgver/toys/other/usermod.c
-	cp $srcdir/groupmod.c $srcdir/toybox-$pkgver/toys/pending/groupmod.c
+	cp $srcdir/usermod.c $srcdir/toybox-$pkgver/toys/lsb/usermod.c
+	cp $srcdir/groupmod.c $srcdir/toybox-$pkgver/toys/lsb/groupmod.c
+
+	# TODO: submit upstream?
 
 	patch -p1 < $srcdir/passwd.patch
+	patch -p1 < $srcdir/password.patch
 	patch -p1 < $srcdir/mount-scanall.patch
-	sed -i '/generated\/Config\.probed: generated\/Config\.in/a generated\/unstripped\/kconfig: generated\/Config.in' Makefile
-
-	# TODO: submit to upstream as proper patches?
-
-	# update_password truncating files on open
-	sed -i 's/fopen(filename, "w+")/fopen(filename, "r+")/' lib/password.c
-
-	# inverted match condition never matching users
-	sed -i "s/!(line\[len\] && line\[len\]!=':')/line[len] != ':'/" lib/password.c
-
-	# use after free when getline's out buffer==line
-	sed -i '/^\s*free(out);$/d' lib/password.c
-
-	# off by one in field replacement
-	sed -i 's/if (pos>=0) out = line;/if (pos>0) out = line;/' lib/password.c
-
-	# xmprintf padding instead of truncating
-	sed -i 's/xmprintf("%\*s%s%s\\n"/xmprintf("%.*s%s%s\\n"/' lib/password.c
-
-	# stdout not flushed before reading stdin
-	sed -i '/xprintf("Login shell for/a\    fflush(stdout);' toys/pending/chsh.c
-
-	# sucky: use blkid to detect fs type before falling back to /proc/filesystems
-	sed -i 's/} else fp = xfopen("\/proc\/filesystems", "r");/} else {\n      char *blktype = chomp(xrunread((char *[]){"blkid", "-o", "value", "-s", "TYPE", dev, 0}, 0));\n      if (blktype) type = blktype;\n      else fp = xfopen("\/proc\/filesystems", "r");\n    }/' toys/lsb/mount.c
+	patch -p1 < $srcdir/mount.patch
+	patch -p1 < $srcdir/chsh.patch
+	patch -p1 < $srcdir/makefile.patch
 }
 
 build() {
@@ -186,6 +182,15 @@ build() {
 		# shadow
 		groupadd groupdel groupmod passwd useradd userdel usermod
 
+		# iputils
+		arping ping traceroute
+
+		# gnu-netcat
+		netcat
+
+		# mdev
+		mdev mdev_conf
+
 		# cfg
 		TOYBOX_SUID
 		TOYBOX_HELP
@@ -200,7 +205,7 @@ build() {
 
 	CC=musl-clang \
 	CFLAGS='-Wno-unused-command-line-argument' \
-	LDFLAGS="-static -lm" \
+	LDFLAGS='-static -lm' \
 	make
 }
 
@@ -214,8 +219,6 @@ package() {
 	for dir in "${pkgdir}/bin" "${pkgdir}/sbin" "${pkgdir}/usr/sbin"; do
 		[[ -d "$dir" ]] && mv "$dir"/* "${pkgdir}/usr/bin/" && rmdir "$dir"
 	done
-
-
 
 	mkwrap "${pkgdir}/usr/bin/agetty" getty
 	mkwrap "${pkgdir}/usr/bin/gawk" awk

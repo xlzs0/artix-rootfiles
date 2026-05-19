@@ -1,0 +1,10 @@
+--- a/toys/pending/chsh.c
++++ b/toys/pending/chsh.c
+@@ -55,6 +55,7 @@
+   if (toys.optflags) shell = TT.s;
+   else {
+     xprintf("Login shell for %s [%s]:", user, passwd_info->pw_shell);
++    fflush(stdout);
+     if (!(shell = xgetline(stdin))) xexit();
+     if (!*shell) xexit();
+   }
