@@ -1,0 +1,33 @@
+pkgname=st
+pkgver=0.9.3
+pkgrel=1
+pkgdesc='A simple virtual terminal emulator for X.'
+arch=('i686' 'x86_64' 'armv7h' 'aarch64')
+license=('MIT')
+depends=('libxft')
+url=https://st.suckless.org
+source=("https://dl.suckless.org/$pkgname/$pkgname-$pkgver.tar.gz"
+	"config.h")
+sha256sums=('9ed9feabcded713d4ded38c8cebf36a3b08f0042ef7934a0e2b2409da56e649b'
+            'e0346917e95cd8a20ac514b8a8c137559311d0da42ae959456bfcb2a363dea22')
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	sed -i 's/tic -sx st.info/ /' Makefile
+	cp "${srcdir}/config.h" config.h
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	make
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	make PREFIX=/usr DESTDIR="$pkgdir" install
+
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

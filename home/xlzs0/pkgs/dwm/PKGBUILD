@@ -1,0 +1,36 @@
+pkgname=dwm
+pkgver=6.8
+pkgrel=1
+pkgdesc='dwm is a dynamic window manager for X.'
+arch=('i686' 'x86_64' 'armv7h' 'aarch64')
+license=('MIT')
+depends=('libxft')
+url=https://st.suckless.org
+source=("https://dl.suckless.org/$pkgname/$pkgname-$pkgver.tar.gz"
+        "config.h"
+	"focusonclick.diff")
+sha256sums=('bcf540589ad174d4073f4efa658828411e2f5ba63196cfaf6b71363700f590b7'
+            '7d538759120180a2f61ee164cf131486e71f60c45554da649da50d037a347611'
+            '0ba58610acab2a2601a47a57fc8102ed2c6cb3df286b7f06a08d8174a6ee23ba')
+
+prepare() {
+        cd "${srcdir}/${pkgname}-${pkgver}"
+
+        cp "${srcdir}/config.h" config.h
+
+	patch -p1 < "${srcdir}/focusonclick.diff"
+}
+
+build() {
+        cd "${srcdir}/${pkgname}-${pkgver}"
+
+        make
+}
+
+package() {
+        cd "${srcdir}/${pkgname}-${pkgver}"
+
+        make PREFIX=/usr DESTDIR="$pkgdir" install
+
+        install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

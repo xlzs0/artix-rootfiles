@@ -68,7 +68,7 @@ static const Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY,                       XK_d,      spawn,          {.v = dmenucmd } },
-	{ NULL,                         XK_Print,  spawn,          SHCMD("maim -u --format=png --select | xclip -selection clipboard -t image/png") },
+	{ 0,                            XK_Print,  spawn,          SHCMD("maim -u --format=png --select | xclip -selection clipboard -t image/png") },
 	{ ShiftMask,                    XK_Print,  spawn,          SHCMD("maim -u --format=png | xclip -selection clipboard -t image/png") },
 	{ MODKEY | ShiftMask,           XK_x,      spawn,          {.v = lockcmd } },
 	{ MODKEY | ShiftMask,           XK_q,      killclient,     {0} },

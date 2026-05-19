@@ -1,0 +1,33 @@
+pkgname=slock
+pkgver=1.6
+pkgrel=1
+pkgdesc='Simple X display locker'
+url='http://tools.suckless.org/slock'
+arch=('i686' 'x86_64' 'armv7h')
+license=('MIT')
+depends=('libxext' 'libxrandr')
+source=("https://dl.suckless.org/tools/$pkgname-$pkgver.tar.gz"
+	"config.h")
+sha256sums=('233d22b8fa65fbdf8a05302863ee5b768ef425c57c88d12059ff15133ebc0e5c'
+            '6771c4217133cc03f5cc53da1aee98266dbe4a87d0e214819c84b9949a4e3fcc')
+options=('!strip')
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	cp "${srcdir}/config.h" config.h
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	
+	make
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	
+	make PREFIX=/usr DESTDIR="$pkgdir" install
+
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
