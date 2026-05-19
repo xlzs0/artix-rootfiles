@@ -7,7 +7,7 @@ license=('MIT')
 depends=('libxft')
 url=https://st.suckless.org
 source=("https://dl.suckless.org/$pkgname/$pkgname-$pkgver.tar.gz"
-        "config.h"
+	"config.h"
 	"focusonclick.diff")
 sha256sums=('bcf540589ad174d4073f4efa658828411e2f5ba63196cfaf6b71363700f590b7'
             '7d538759120180a2f61ee164cf131486e71f60c45554da649da50d037a347611'
