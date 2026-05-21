@@ -1,0 +1,51 @@
+pkgname=efistub
+pkgver=2
+pkgrel=1
+pkgdesc='efistub gen'
+arch=('x86_64')
+license=('0BSD')
+depends=('efibootmgr')
+backup=('etc/cmdline')
+options=(!strip)
+
+package() {
+        mkdir -p "$pkgdir/etc/"
+        mkdir -p "$pkgdir/usr/bin/"
+        mkdir -p "$pkgdir/usr/share/libalpm/hooks/"
+
+        echo 'root=/dev/sda2 rw quiet' > "$pkgdir/etc/cmdline"
+        chmod 644 "$pkgdir/etc/cmdline"
+
+        cat > "$pkgdir/usr/bin/efistub" <<'dgjdfiogj'
+#!/bin/sh
+set -e
+
+cp "/usr/lib/modules/$(ls /usr/lib/modules/ | sort -rV | head -1)/vmlinuz" /boot/vmlinuz
+
+mount -o remount,rw /sys/firmware/efi/efivars
+
+bootnum=$(efibootmgr | grep Artix | tr -cd '0-9' | cut -c1-4)
+[ -n "$bootnum" ] && efibootmgr -B -b "$bootnum" > /dev/null
+
+efibootmgr --create --disk /dev/sda --part 1 --label Artix --loader /vmlinuz --unicode "$(cat /etc/cmdline)" > /dev/null
+
+mount -o remount,ro /sys/firmware/efi/efivars
+dgjdfiogj
+
+        chmod 755 "$pkgdir/usr/bin/efistub"
+
+        cat > "$pkgdir/usr/share/libalpm/hooks/99-efistub.hook" <<'isjfdiosjdsiodjfis'
+[Trigger]
+Type = Path
+Operation = Install
+Operation = Upgrade
+Target = usr/lib/modules/*/vmlinuz
+
+[Action]
+Description = Generating efistub...
+When = PostTransaction
+Exec = /usr/bin/efistub
+isjfdiosjdsiodjfis
+
+        chmod 644 "$pkgdir/usr/share/libalpm/hooks/99-efistub.hook"
+}

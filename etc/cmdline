@@ -1,0 +1,1 @@
+root=/dev/sda2 rw quiet modprobe.blacklist=snd_hda_intel,snd_hda_codec,snd_hda_core,snd_hda_codec_realtek,snd_hda_codec_hdmi,snd_hda_codec_generic,wmi split_lock_detect=off usbcore.quirks=5566:0008:i

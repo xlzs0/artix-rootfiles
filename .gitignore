@@ -17,6 +17,7 @@
 !/etc/resolv.conf
 !/etc/mdev.conf
 !/etc/sysctl.conf
+!/etc/cmdline
 !/home/
 !/home/xlzs0/
 !/home/xlzs0/.config/
@@ -83,6 +84,8 @@
 !/home/xlzs0/pkgs/toybox/groupmod.c
 !/home/xlzs0/pkgs/toybox/usermod.c
 !/home/xlzs0/pkgs/toybox/*.patch
+!/home/xlzs0/pkgs/efistub/
+!/home/xlzs0/pkgs/efistub/PKGBUILD
 !/home/xlzs0/pkgs/mksh/
 !/home/xlzs0/pkgs/mksh/PKGBUILD
 !/home/xlzs0/pkgs/mksh/mksh.install
