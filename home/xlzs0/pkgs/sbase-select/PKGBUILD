@@ -1,5 +1,5 @@
 pkgname=sbase-select
-pkgver=1
+pkgver=r2179.c134158
 pkgrel=1
 pkgdesc='Few utilities from sbase'
 arch=('x86_64')
@@ -10,23 +10,23 @@ makedepends=(
 	'musl'
 	'clang'
 )
-source=("$pkgname::git://git.suckless.org/sbase")
+source=("sbase::git://git.suckless.org/sbase")
 sha256sums=('SKIP')
 
 _utils=(join pathchk unexpand)
 
 pkgver() {
-	cd "$pkgname"
+	cd "sbase"
 	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
 build() {
-	cd "$pkgname"
+	cd "sbase"
 	make CC=musl-clang LDFLAGS='-s -static' "${_utils[@]}"
 }
 
 package() {
-	cd "$pkgname"
+	cd "sbase"
 	for u in "${_utils[@]}"; do
 		install -Dm755 "$u" "$pkgdir/usr/local/bin/$u"
 	done

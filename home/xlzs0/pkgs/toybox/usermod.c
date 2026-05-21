@@ -31,8 +31,8 @@ config USERMOD
 #include "toys.h"
 
 GLOBALS(
-  char *c, *d, *g, *G, *l, *p, *s;
   long u;
+  char *s, *p, *l, *G, *g, *d, *c;
 )
 
 static char *update_group_members(char **cur_mem, char *user, int add)
@@ -67,17 +67,20 @@ void usermod_main(void)
 {
   struct passwd *pwd;
   struct group *grp;
-  char *login = *toys.optargs, *cur_name, *new_name, *new_home;
-  uid_t new_uid;
-  gid_t new_gid;
+  char *login = *toys.optargs, *cur_name, *new_name, *new_home, *old_home;
+  uid_t old_uid, new_uid;
+  gid_t old_gid, new_gid;
 
   if (!(pwd = getpwnam(login))) error_exit("user '%s' not found", login);
 
   cur_name = xstrdup(pwd->pw_name);
-  new_name = FLAG(l) ? TT.l : pwd->pw_name;
-  new_home = FLAG(d) ? TT.d : pwd->pw_dir;
-  new_uid  = FLAG(u) ? (uid_t)TT.u : pwd->pw_uid;
-  new_gid  = pwd->pw_gid;
+  old_home = xstrdup(pwd->pw_dir);
+  old_uid  = pwd->pw_uid;
+  old_gid  = pwd->pw_gid;
+  new_name = FLAG(l) ? TT.l : cur_name;
+  new_home = FLAG(d) ? TT.d : old_home;
+  new_uid  = FLAG(u) ? (uid_t)TT.u : old_uid;
+  new_gid  = old_gid;
 
   if (FLAG(l)) {
     if (!*TT.l || TT.l[strcspn(TT.l, ":/\n")] || strlen(TT.l) >= LOGIN_NAME_MAX)
@@ -150,7 +153,7 @@ void usermod_main(void)
       int i, in_new = 0;
       char *mem_str;
 
-      if (grp->gr_gid == pwd->pw_gid && !FLAG(g)) continue;
+      if (grp->gr_gid == old_gid && !FLAG(g)) continue;
       if (FLAG(g) && grp->gr_gid == new_gid) continue;
 
       for (i = 0; i < n_new; i++)
@@ -165,7 +168,7 @@ void usermod_main(void)
       mem_str = update_group_members(grp->gr_mem, cur_name, in_new);
       if (mem_str) {
         update_password("/etc/group", grp->gr_name, mem_str, 3);
-        update_password("/etc/gshadow", grp->gr_name, mem_str, 3);
+        //update_password("/etc/gshadow", grp->gr_name, mem_str, 3);
         free(mem_str);
       }
     }
@@ -195,18 +198,18 @@ void usermod_main(void)
         p = stpcpy(p, name);
       }
       update_password("/etc/group", grp->gr_name, mem_str, 3);
-      update_password("/etc/gshadow", grp->gr_name, mem_str, 3);
+      //update_password("/etc/gshadow", grp->gr_name, mem_str, 3);
       free(mem_str);
     }
     endgrent();
   }
 
-  if (FLAG(m) && FLAG(d) && strcmp(pwd->pw_dir, TT.d)) {
+  if (FLAG(m) && FLAG(d) && strcmp(old_home, TT.d)) {
     char *ug;
 
     if (!access(TT.d, F_OK))
       error_exit("home dir '%s' already exists", TT.d);
-    if (xrun((char *[]){"mv", pwd->pw_dir, TT.d, NULL}))
+    if (xrun((char *[]){"mv", old_home, TT.d, NULL}))
       error_exit("failed to move home directory");
     ug = xmprintf("%ld:%ld", (long)new_uid, (long)new_gid);
     if (xrun((char *[]){"chown", "-R", ug, TT.d, NULL}))
@@ -215,15 +218,16 @@ void usermod_main(void)
   }
 
   if (FLAG(u) && !access(new_home, F_OK)) {
-    char *old_uid = xmprintf("%ld", (long)pwd->pw_uid);
+    char *old_uid_s = xmprintf("%ld", (long)old_uid);
     char *new_uid_s = xmprintf("%ld", (long)new_uid);
 
-    if (xrun((char *[]){"find", new_home, "-user", old_uid, "-exec",
+    if (xrun((char *[]){"find", new_home, "-user", old_uid_s, "-exec",
         "chown", new_uid_s, "{}", ";", NULL}))
       perror_msg("failed to update file ownership");
-    free(old_uid);
+    free(old_uid_s);
     free(new_uid_s);
   }
 
+  free(old_home);
   free(cur_name);
 }

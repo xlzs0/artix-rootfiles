@@ -1,0 +1,11 @@
+--- a/toys/pending/useradd.c
++++ b/toys/pending/useradd.c
+@@ -148,7 +148,7 @@
+   }
+ 
+   //3. update the user passwd by running 'passwd' utility
+-  if (!(toys.optflags & FLAG_D))
++  if (!(toys.optflags & (FLAG_D | FLAG_S)))
+     if (xrun((char *[]){"passwd", pwd.pw_name, 0})) error_exit("passwd");
+ 
+   if (toys.optflags & FLAG_G) {

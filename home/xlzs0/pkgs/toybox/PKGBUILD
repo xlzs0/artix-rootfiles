@@ -5,7 +5,6 @@ pkgdesc='All-in-one Linux command line'
 arch=('i686' 'x86_64' 'armv6h' 'armv7h')
 url='https://landley.net/toybox'
 license=('0BSD')
-depends=()
 optdepends=('dinit')
 makedepends=('musl' 'clang')
 source=("https://landley.net/${pkgname}/downloads/${pkgname}-${pkgver}.tar.gz"
@@ -17,17 +16,21 @@ source=("https://landley.net/${pkgname}/downloads/${pkgname}-${pkgver}.tar.gz"
 	"mount.patch"
 	"chsh.patch"
 	"makefile.patch"
-	"fsck.patch")
+	"fsck.patch"
+	"useradd.patch"
+	"groupadd.patch")
 sha256sums=('9d4c124d7d731a2db399f6278baa2b42c2e3511f610c6ad30cc3f1a52581334b'
-            'c41a01dbdf36ac8c6ae6c97f2d20ab811fe851df065426ea77eac3e76f99f8fd'
+            'b88e1aa6f1f81d1ed45dd7ae91bf477be28aae3a14e9482457c8a0f35648125f'
             '0f2a16f76669b6f33a758d01d44b7312f5796a92c7b053dd84b69a8e8b7bdb18'
             'b6711acf47c09f5cb6d6c1986c091f72f344e39761377dde36cc9bb97ed03b8a'
-            '31b1f9c3bb286a66d8ca3a9d8a68de71b95268b56cc8c28c4cc01b2ee2077aec'
+            '7b66dcd495c72deaa56a6023927cbd12f736391cae89cc7d9612d9666e4eb416'
             '125eea1939102e88ef1548f71621a599c69640cd999b5c78e7ebd69674999e6d'
             '23066fd10a771b109b30fe49132efe30c82d659725e8184a2b72069e34b1b72a'
             '101e6d59792f19c22aca99688b2675c26bd9c48f70f13540012854c73a6c6f84'
             'd08d7e3ee2f5526620eb7721c3e1073059eca6f5ca498413524ae769b98fd64a'
-            '17b7a2e94677e1c9247d9d78737641968c6531f9f9da2ac490dc71f269dc77c3')
+            '17b7a2e94677e1c9247d9d78737641968c6531f9f9da2ac490dc71f269dc77c3'
+            '928aa24d63f267b96d3ad39eee0719ece885ee384ae30bc78ed5d52cb781bcfe'
+            '10500dac6c3bf7e86900d5d703ea7792796f845610b88e90404b5912353dd94c')
 
 provides=(
 	'coreutils'
@@ -112,6 +115,8 @@ prepare() {
 	patch -p1 < $srcdir/mount.patch
 	patch -p1 < $srcdir/chsh.patch
 	patch -p1 < $srcdir/fsck.patch
+	patch -p1 < $srcdir/useradd.patch
+	patch -p1 < $srcdir/groupadd.patch
 	patch -p1 < $srcdir/makefile.patch
 }
 

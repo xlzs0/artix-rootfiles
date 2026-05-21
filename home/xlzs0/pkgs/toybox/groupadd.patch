@@ -1,0 +1,10 @@
+--- a/toys/pending/groupadd.c
++++ b/toys/pending/groupadd.c
+@@ -68,7 +68,6 @@
+       s = stpcpy(s, grp->gr_mem[i]);
+     }
+     update_password(gfile, grp->gr_name, entry, 3);
+-    update_password(gsfile, grp->gr_name, entry, 3);
+     free(entry);
+
+     return;

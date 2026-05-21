@@ -1,0 +1,85 @@
+--- a/sysusers
++++ b/sysusers
+@@ -15,9 +15,9 @@ warninvalid() {
+ add_group() {
+ 	# add_group <name> <id>
+ 	if [ "$2" = '-' ]; then
+-		grep -q "^$1:" "$root/etc/group" || groupadd --prefix "$root" -r "$1"
++		grep -q "^$1:" "$root/etc/group" || groupadd -S "$1"
+ 	elif ! grep -q "^$1:\|^[^:]*:[^:]*:$2:[^:]*$" "$root/etc/group"; then
+-		groupadd --prefix "$root" -g "$2" "$1"
++		groupadd -g "$2" "$1"
+ 	fi
+ }
+ 
+@@ -26,17 +26,17 @@ add_user() {
+ 	if ! id "$1" >/dev/null 2>&1; then
+ 		if [ "$2" = '-' ]; then
+ 			if [ "$3" = '-' ]; then
+-				useradd --prefix "$root" -rc "$4" -g "$1" -d "$5" -s '/sbin/nologin' "$1"
++				useradd -S -g "$4" -G "$1" -h "$5" -s '/sbin/nologin' "$1"
+ 			else
+-				useradd --prefix "$root" -rc "$4" -g "$3" -d "$5" -s '/sbin/nologin' "$1"
++				useradd -S -g "$4" -G "$3" -h "$5" -s '/sbin/nologin' "$1"
+ 			fi
+ 		else
+-			useradd --prefix "$root" -rc "$4" -u "$2" -g "$3" -d "$5" -s '/sbin/nologin' "$1"
++			useradd -S -g "$4" -u "$2" -G "$3" -h "$5" -s '/sbin/nologin' "$1"
+ 		fi
+-		passwd --prefix "$root" -l "$1" >/dev/null 2>&1
++		passwd -l "$1" >/dev/null 2>&1
+ 		while [ $# -gt 5 ]; do
+ 			case "$6" in
+-				locked) usermod --prefix "$root" -e 1 "$1" ;;
++				locked) passwd -l "$1" >/dev/null 2>&1 ;;
+ 			esac
+ 			shift
+ 		done
+@@ -65,11 +65,11 @@ update_login_defs() {
+ }
+ 
+ parse_file() {
+-	while read -r conf; do
++	while read -r file; do
+ 		lineno=0
+ 		while read -r line; do
+ 			parse_string "${line}" "$((lineno += 1))"
+-		done < "${conf}"
++		done < "${file}"
+ 		[ -n "${line}" ] && parse_string "${line}"
+ 	done
+ }
+@@ -105,9 +105,9 @@ parse_string() {
+ 		u)
+ 			uid=${id%%:*}
+ 			gid=${id##*:}
+-			case "${uid}" in 65535|4294967295) warninvalid; return; esac
+-			case "${gid}" in 65535|4294967295) warninvalid; return; esac
+-			if [ "${uid}" != '-' ] && [ "${gid}" = '-' ]; then warninvalid; return; fi
++			case "${uid}" in 65535|4294967295) warninvalid "reserved uid"; return; esac
++			case "${gid}" in 65535|4294967295) warninvalid "reserved gid"; return; esac
++			if [ "${uid}" != '-' ] && [ "${gid}" = '-' ]; then warninvalid "uid set but gid is unspecified"; return; fi
+ 			[ "${home:--}" = '-' ] && home='/'
+ 			if [ "${uid}" = "${id}" ]; then
+ 				# No specific gid, create group for this user
+@@ -127,16 +127,16 @@ parse_string() {
+ 		m)
+ 			add_group "${id}" '-'
+ 			if id "${name}" >/dev/null 2>&1; then
+-				usermod --prefix "$root" -a -G "${id}" "${name}"
++				usermod -G "$(id -Gn "${name}" | tr ' ' ','),${id}" "${name}"
+ 			else
+-				useradd --prefix "$root" -r -g "${id}" -s '/sbin/nologin' "${name}"
+-				passwd --prefix "$root" -l "${name}" >/dev/null 2>&1
++				useradd -S -G "${id}" -s '/sbin/nologin' "${name}"
++				passwd -l "${name}" >/dev/null 2>&1
+ 			fi
+ 		;;
+ 		r)
+ 			update_login_defs "${name}" "${id}"
+ 		;;
+-		*) warninvalid; return ;;
++		*) warninvalid "unknown type '${type}'"; return ;;
+ 	esac
+ }
+ 
