@@ -1,0 +1,27 @@
+pkgname=libudev-zero
+pkgver=300
+pkgrel=1
+pkgdesc="Daemonless replacement for libudev"
+arch=('any')
+license=('ISC')
+provides=(
+	"libudev=$pkgver"
+	'libudev'
+	'libudev.so'
+	'libudev.so=1-64'
+)
+conflicts=(
+	'libudev'
+	'libudev.so'
+	'libudev.so=1-64'
+)
+source=("git+https://github.com/illiliti/libudev-zero#tag=1.0.3")
+sha256sums=('4ec6262418a05a0091a2f4f22b85e5949ffe4dc63caef3058304fb9a3d80f12b')
+
+build() {
+	make -C libudev-zero PREFIX=/usr
+}
+
+package() {
+	make -C libudev-zero PREFIX=/usr DESTDIR="$pkgdir" install
+}

@@ -42,7 +42,6 @@
 !/home/xlzs0/.mkshrc
 !/home/xlzs0/.nanorc
 !/home/xlzs0/.profile
-!/home/xlzs0/create_efi_stub
 !/home/xlzs0/tinystatus
 !/home/xlzs0/pkgs/
 !/home/xlzs0/pkgs/dbus-stub/
@@ -102,3 +101,5 @@
 !/home/xlzs0/pkgs/opentmpfiles/opentmpfiles.install
 !/home/xlzs0/pkgs/gettext-tiny/
 !/home/xlzs0/pkgs/gettext-tiny/PKGBUILD
+!/home/xlzs0/pkgs/libudev-zero/
+!/home/xlzs0/pkgs/libudev-zero/PKGBUILD
