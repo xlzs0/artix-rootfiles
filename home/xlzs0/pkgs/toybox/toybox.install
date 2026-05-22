@@ -7,7 +7,7 @@ post_install() {
 
 		sed 's|/sbin/swapon -a|/usr/local/lib/swap|' /usr/lib/dinit.d/swap > /etc/dinit.d/swap
 
-		cat > /usr/local/lib/swap << 'EOF'
+		cat > /usr/local/lib/swap <<'EOF'
 #!/bin/sh
 resolve_dev() {
 	case "$1" in
@@ -41,6 +41,15 @@ EOF
 		sed 's|/usr/lib/dinit/fsck|/usr/local/lib/fsck|' /usr/lib/dinit.d/fsck-root > /etc/dinit.d/fsck-root
 
 		sed 's| --system| -p|' /usr/lib/dinit.d/sysctl > /etc/dinit.d/sysctl
+
+		if [ "$(readlink -f /usr/bin/crond)" = /usr/bin/toybox ]; then
+			cat > /etc/dinit.d/cron <<'EOF'
+type            = process
+command         = /usr/bin/crond -f
+smooth-recovery = true
+depends-on      = local.target
+EOF
+		fi
 	fi
 }
 
@@ -49,5 +58,5 @@ post_upgrade() {
 }
 
 post_remove() {
-	rm -f /etc/dinit.d/swap /etc/dinit.d/hwclock /etc/dinit.d/fsck /etc/dinit.d/fsck-root /etc/dinit.d/sysctl
+	rm -f /etc/dinit.d/swap /etc/dinit.d/hwclock /etc/dinit.d/fsck /etc/dinit.d/fsck-root /etc/dinit.d/sysctl /etc/dinit.d/cron
 }

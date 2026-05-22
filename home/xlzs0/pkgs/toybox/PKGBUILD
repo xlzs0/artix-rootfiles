@@ -189,6 +189,9 @@ build() {
 		# gnu-netcat
 		netcat
 
+		# cron
+#		crond crontab
+
 		# cfg
 		TOYBOX_SUID
 		TOYBOX_HELP
