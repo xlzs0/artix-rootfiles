@@ -71,9 +71,6 @@
 !/home/xlzs0/pkgs/no-init-logind/PKGBUILD
 !/home/xlzs0/pkgs/no-initramfs/
 !/home/xlzs0/pkgs/no-initramfs/PKGBUILD
-!/home/xlzs0/pkgs/no-udev/
-!/home/xlzs0/pkgs/no-udev/PKGBUILD
-!/home/xlzs0/pkgs/no-udev/no-udev.install
 !/home/xlzs0/pkgs/no-xlibre-libinput/
 !/home/xlzs0/pkgs/no-xlibre-libinput/PKGBUILD
 !/home/xlzs0/pkgs/sbase-select/
@@ -89,6 +86,7 @@
 !/home/xlzs0/pkgs/mksh/mksh.install
 !/home/xlzs0/pkgs/mdevd/
 !/home/xlzs0/pkgs/mdevd/PKGBUILD
+!/home/xlzs0/pkgs/mdevd/mdevd.install
 !/home/xlzs0/pkgs/opensysusers/
 !/home/xlzs0/pkgs/opensysusers/PKGBUILD
 !/home/xlzs0/pkgs/opensysusers/20-opensysusers.hook

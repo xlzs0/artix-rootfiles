@@ -5,8 +5,9 @@ pkgdesc='A Linux kernel event manager daemon (like udevd) that understands the m
 arch=('x86_64')
 url='https://skarnet.org/software/mdevd'
 license=('ISC')
-depends=()
+provides=('udev')
 makedepends=('musl' 'clang')
+install=mdevd.install
 
 _skalibs_ver=2.15.0.0
 
