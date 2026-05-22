@@ -67,7 +67,7 @@
  			add_group "${id}" '-'
  			if id "${name}" >/dev/null 2>&1; then
 -				usermod --prefix "$root" -a -G "${id}" "${name}"
-+				usermod -G "$(id -Gn "${name}" | tr ' ' ','),${id}" "${name}"
++				addgroup "${name}" "${id}"
  			else
 -				useradd --prefix "$root" -r -g "${id}" -s '/sbin/nologin' "${name}"
 -				passwd --prefix "$root" -l "${name}" >/dev/null 2>&1

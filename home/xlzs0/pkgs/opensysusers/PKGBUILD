@@ -13,7 +13,7 @@ source=("$pkgname::git+https://github.com/cromerc/opensysusers.git#tag=${pkgver}
 	'toybox.patch')
 sha256sums=('e88788481e5b26e708820acb1ec909a66cc2e4e2c7bdb6fa1ccc933931c50cbb'
             'be46b337c4f75d4e23c3e7630a6bc2275d899bd4db179ab1ce8a53ab28ca97df'
-            '9a49077649a7592ca6be440a66b6c0d3a9ad30b306291f3bf0dedb74594ea0aa')
+            '20fde4001a6a5f6baee234ee9e237e64eafbf7296dfbaa8dd999e0c1d8eb30bc')
 install=opensysusers.install
 provides=('esysusers')
 replaces=('esysusers')

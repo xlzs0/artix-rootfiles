@@ -1,5 +1,5 @@
 pkgname=efistub
-pkgver=2
+pkgver=1
 pkgrel=1
 pkgdesc='efistub gen'
 arch=('x86_64')

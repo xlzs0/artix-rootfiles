@@ -8,8 +8,6 @@ license=('0BSD')
 optdepends=('dinit')
 makedepends=('musl' 'clang')
 source=("https://landley.net/${pkgname}/downloads/${pkgname}-${pkgver}.tar.gz"
-	"usermod.c"
-	"groupmod.c"
 	"passwd.patch"
 	"password.patch"
 	"mount-scanall.patch"
@@ -20,8 +18,6 @@ source=("https://landley.net/${pkgname}/downloads/${pkgname}-${pkgver}.tar.gz"
 	"useradd.patch"
 	"groupadd.patch")
 sha256sums=('9d4c124d7d731a2db399f6278baa2b42c2e3511f610c6ad30cc3f1a52581334b'
-            'b88e1aa6f1f81d1ed45dd7ae91bf477be28aae3a14e9482457c8a0f35648125f'
-            '0f2a16f76669b6f33a758d01d44b7312f5796a92c7b053dd84b69a8e8b7bdb18'
             'b6711acf47c09f5cb6d6c1986c091f72f344e39761377dde36cc9bb97ed03b8a'
             '7b66dcd495c72deaa56a6023927cbd12f736391cae89cc7d9612d9666e4eb416'
             '125eea1939102e88ef1548f71621a599c69640cd999b5c78e7ebd69674999e6d'
@@ -103,9 +99,6 @@ install=toybox.install
 
 prepare() {
 	cd "${srcdir}/${pkgname}-${pkgver}"
-
-	cp $srcdir/usermod.c $srcdir/toybox-$pkgver/toys/lsb/usermod.c
-	cp $srcdir/groupmod.c $srcdir/toybox-$pkgver/toys/lsb/groupmod.c
 
 	# TODO: submit upstream?
 
