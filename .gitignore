@@ -13,6 +13,7 @@
 !/etc/dinit.d/net-eth0
 !/etc/xray/
 !/etc/xray/run
+!/etc/xray/config.json
 !/etc/doas.conf
 !/etc/resolv.conf
 !/etc/mdev.conf

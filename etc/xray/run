@@ -12,7 +12,7 @@ cleanup() {
 
 trap cleanup EXIT INT TERM
 
-/usr/bin/xray run -config /etc/xray/config.json &
+/usr/bin/xray run -confdir /etc/xray/ &
 xpid=$!
 
 while [ ! -e /sys/class/net/xray0 ]; do
